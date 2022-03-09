@@ -1,0 +1,4 @@
+﻿# This line should not be read!!!
+Google 8.8.8.8
+Gateway 192.168.10.1
+DockerBox 192.168.50.10
