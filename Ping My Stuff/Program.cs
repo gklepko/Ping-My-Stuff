@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.NetworkInformation;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -12,6 +13,8 @@ namespace Ping_My_Stuff
     {
         static void Main(string[] args)
         {
+            PrintAppInfo();
+
             try
             {
                 var lines = System.IO.File.ReadAllLines("devices.txt");
@@ -41,6 +44,16 @@ namespace Ping_My_Stuff
 
             Console.ReadLine();
         }
+
+        private static void PrintAppInfo()
+        { 
+            var name = Assembly.GetExecutingAssembly().GetName().Name.ToString();
+            var version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine($"{name} v{version}");
+            Console.ResetColor();
+        }
     }
 
     class Device
@@ -52,18 +65,26 @@ namespace Ping_My_Stuff
             Name = name;
             IPAddress = ipAddress;
         }
-
         public async void Ping()
         {
             var ping = new Ping();
 
             var timeout = TimeSpan.FromSeconds(5);
 
-            PingOptions options = new PingOptions(64, true);
-
             var reply = await ping.SendPingAsync(IPAddress, (int)timeout.TotalSeconds);
-            Console.WriteLine($"Name: {Name} Status: {reply.Status} RoundTrip Time: {reply.RoundtripTime}");
 
+            if (reply.Status == IPStatus.Success)
+            {
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine($"Name: {Name} Status: {reply.Status} RoundTrip Time: {reply.RoundtripTime}");
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"Name: {Name} Status: {reply.Status} RoundTrip Time: {reply.RoundtripTime}");
+            }
+
+            Console.ResetColor();
         }
         public override string ToString()
         {
